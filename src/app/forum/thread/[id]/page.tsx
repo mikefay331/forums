@@ -42,12 +42,7 @@ export default function ThreadPage() {
         .from('threads')
         .select(`
           *,
-          author: users!author_id (
-            id,
-            username,
-            avatar,
-            level
-          )
+          author:users!author_id(id, username, avatar, level)
         `)
         .eq('id', params.id)
         .single()
@@ -73,12 +68,7 @@ export default function ThreadPage() {
         .from('posts')
         .select(`
           *,
-          author: users!author_id (
-            id,
-            username,
-            avatar,
-            level
-          )
+          author:users!author_id(id, username, avatar, level)
         `)
         .eq('thread_id', params.id)
         .order('created_at', { ascending: true })
@@ -162,8 +152,9 @@ export default function ThreadPage() {
   }
 
   const getAvatarUrl = (author: any) => {
-    if (!author || !author.avatar) return null
-    return author.avatar
+    if (!author?.avatar) return null
+    if (author.avatar.startsWith('http')) return author.avatar
+    return supabase.storage.from('avatars').getPublicUrl(author.avatar).data.publicUrl
   }
 
   const renderReplyContent = (reply: any) => {

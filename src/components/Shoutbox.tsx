@@ -86,7 +86,7 @@ export default function Shoutbox() {
         .from('shoutbox')
         .select(`
           *,
-          user:users (id, username, level, avatar)
+          user:users!user_id(id, username, level, avatar)
         `)
         .order('created_at', { ascending: false })
         .limit(20)
@@ -162,9 +162,9 @@ export default function Shoutbox() {
   }
 
   const getAvatarUrl = (msgUser: any) => {
-    if (!msgUser || !msgUser.avatar) return null
-    // Assuming Supabase storage bucket named 'avatars'
-    return `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${msgUser.avatar}`
+    if (!msgUser?.avatar) return null
+    if (msgUser.avatar.startsWith('http')) return msgUser.avatar
+    return supabase.storage.from('avatars').getPublicUrl(msgUser.avatar).data.publicUrl
   }
 
   const getAvatarBorderColor = (level: number) => {

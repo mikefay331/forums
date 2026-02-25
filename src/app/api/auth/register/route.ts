@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
 
     // Check username
     const { data: existing } = await supabase
-      . from('users')
+      .from('users')
       .select('username')
       .eq('username', username.toLowerCase())
       .maybeSingle();
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create auth user
-    const { data: authData, error:  authError } = await supabase. auth.admin.createUser({
+    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
       email: email.toLowerCase(),
       password: password,
       email_confirm: true,
@@ -46,14 +46,14 @@ export async function POST(request: NextRequest) {
 
     if (authError) {
       console.error('Auth error:', authError);
-      return NextResponse. json({ error: authError.message }, { status: 400 });
+      return NextResponse.json({ error: authError.message }, { status: 400 });
     }
 
     if (!authData?.user) {
       return NextResponse.json({ error: 'No user created' }, { status: 500 });
     }
 
-    console. log('✅ Auth user:', authData.user.id);
+    console.log('✅ Auth user:', authData.user.id);
 
     // Create profile
     const { data: userData, error: userError } = await supabase
@@ -87,6 +87,6 @@ export async function POST(request: NextRequest) {
 
   } catch (error: any) {
     console.error('💥 Error:', error);
-    return NextResponse. json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

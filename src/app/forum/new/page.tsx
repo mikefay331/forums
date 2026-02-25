@@ -118,7 +118,7 @@ export default function NewThreadPage() {
       {/* Header */}
       <div className="bg-[#1a1a1a] border-b border-gray-800 py-4">
         <div className="max-w-4xl mx-auto px-4">
-          <Link href="/forum" className="text-[#5865f2] hover: underline text-sm mb-2 block">
+          <Link href="/forum" className="text-[#5865f2] hover:underline text-sm mb-2 block">
             ← Back to Forum
           </Link>
           <h1 className="text-2xl font-bold text-white">Create New Thread</h1>
@@ -138,7 +138,7 @@ export default function NewThreadPage() {
                 Category
               </label>
               <select
-                className="w-full bg-[#2a2a2a] border border-gray-700 text-white px-4 py-3 rounded focus: outline-none focus:border-[#5865f2] focus: ring-1 focus:ring-[#5865f2]"
+                className="w-full bg-[#2a2a2a] border border-gray-700 text-white px-4 py-3 rounded focus:outline-none focus:border-[#5865f2] focus:ring-1 focus:ring-[#5865f2]"
                 value={formData. category}
                 onChange={(e) => setFormData({ ... formData, category: e.target.value })}
                 required
@@ -188,7 +188,7 @@ export default function NewThreadPage() {
                 Content
               </label>
               <textarea
-                className="w-full bg-[#2a2a2a] border border-gray-700 text-white px-4 py-3 rounded focus:outline-none focus: border-[#5865f2] focus:ring-1 focus:ring-[#5865f2] font-mono"
+                className="w-full bg-[#2a2a2a] border border-gray-700 text-white px-4 py-3 rounded focus:outline-none focus:border-[#5865f2] focus:ring-1 focus:ring-[#5865f2] font-mono"
                 value={formData.content}
                 onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                 placeholder="Write your thread content..."
@@ -205,7 +205,7 @@ export default function NewThreadPage() {
               <button
                 type="submit"
                 disabled={loading || ((formData.category === 'Announcements' || formData.category === 'Giveaways') && !isAdmin)}
-                className="flex-1 bg-[#5865f2] hover: bg-[#4752c4] disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-6 py-3 rounded font-semibold transition"
+                className="flex-1 bg-[#5865f2] hover:bg-[#4752c4] disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-6 py-3 rounded font-semibold transition"
               >
                 {loading ?  'Creating Thread...' : `Create Thread (+${XP_REWARDS.NEW_THREAD} XP)`}
               </button>
@@ -213,7 +213,7 @@ export default function NewThreadPage() {
                 type="button"
                 onClick={() => router.back()}
                 disabled={loading}
-                className="flex-1 bg-[#2a2a2a] hover: bg-[#3a3a3a] disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded font-semibold transition border border-gray-700"
+                className="flex-1 bg-[#2a2a2a] hover:bg-[#3a3a3a] disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded font-semibold transition border border-gray-700"
               >
                 Cancel
               </button>

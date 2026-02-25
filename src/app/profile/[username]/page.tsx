@@ -105,9 +105,10 @@ export default function ProfilePage() {
     return 'text-white'
   }
 
-  const getAvatarUrl = (user: any) => {
-    if (!user || !user.avatar) return null
-    return user.avatar
+  const getAvatarUrl = (userObj: any) => {
+    if (!userObj?.avatar) return null
+    if (userObj.avatar.startsWith('http')) return userObj.avatar
+    return supabase.storage.from('avatars').getPublicUrl(userObj.avatar).data.publicUrl
   }
 
   const formatDate = (dateString: string) => {

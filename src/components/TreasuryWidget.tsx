@@ -104,7 +104,7 @@ export default function TreasuryWidget() {
                 href={tokenData?.url || `https://dexscreener.com/solana/${CONTRACT_ADDRESS}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block text-[#5865f2] hover: underline text-sm"
+                className="block text-[#5865f2] hover:underline text-sm"
               >
                 📊 View Chart →
               </a>
@@ -144,7 +144,7 @@ export default function TreasuryWidget() {
                   href={`https://solscan.io/account/${TREASURY_WALLET}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block text-[#5865f2] hover: underline text-sm"
+                  className="block text-[#5865f2] hover:underline text-sm"
                 >
                   🏦 View Treasury on Solscan →
                 </a>

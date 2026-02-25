@@ -1,11 +1,17 @@
 // src/app/forum/thread/[id]/page.tsx
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 import Link from 'next/link'
+import { Tweet } from 'react-tweet'
+
+function extractTweetId(url: string): string | null {
+  const match = url.match(/(?:twitter\.com|x\.com)\/\w+\/status\/(\d+)/)
+  return match ? match[1] : null
+}
 
 export default function ThreadPage() {
   const params = useParams()
@@ -14,6 +20,7 @@ export default function ThreadPage() {
   const [thread, setThread] = useState<any>(null)
   const [replies, setReplies] = useState<any[]>([])
   const [replyContent, setReplyContent] = useState('')
+  const [tweetUrl, setTweetUrl] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -35,7 +42,7 @@ export default function ThreadPage() {
         .from('threads')
         .select(`
           *,
-          author:  users! author_id (
+          author: users!author_id (
             id,
             username,
             avatar,
@@ -53,7 +60,7 @@ export default function ThreadPage() {
       try {
         await supabase
           .from('threads')
-          .update({ views: (threadData. views || 0) + 1 })
+          .update({ views: (threadData.views || 0) + 1 })
           .eq('id', params.id)
       } catch (viewError) {
         console.log('Could not update views:', viewError)
@@ -62,11 +69,11 @@ export default function ThreadPage() {
       setThread(threadData)
 
       // Fetch replies (posts) with author data
-      const { data:  repliesData, error: repliesError } = await supabase
+      const { data: repliesData, error: repliesError } = await supabase
         .from('posts')
         .select(`
           *,
-          author: users! author_id (
+          author: users!author_id (
             id,
             username,
             avatar,
@@ -78,10 +85,10 @@ export default function ThreadPage() {
 
       if (repliesError) throw repliesError
 
-      console.log('Replies loaded:', repliesData?. length || 0)
+      console.log('Replies loaded:', repliesData?.length || 0)
       setReplies(repliesData || [])
       setLoading(false)
-    } catch (error:  any) {
+    } catch (error: any) {
       console.error('Error loading thread:', error)
       console.error('Error details:', {
         message: error.message,
@@ -95,14 +102,19 @@ export default function ThreadPage() {
 
   const handleReply = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user || !replyContent. trim()) return
+    if (!user || !replyContent.trim()) return
 
     try {
+      let content = replyContent
+      if (thread?.category === 'Giveaways' && tweetUrl.trim()) {
+        content = `TWEET:${tweetUrl.trim()}\n${replyContent}`
+      }
+
       // Create reply (post)
-      const { error:  replyError } = await supabase
+      const { error: replyError } = await supabase
         .from('posts')
         .insert({
-          content: replyContent,
+          content,
           author_id: user.id,
           thread_id: params.id,
           likes: 0
@@ -115,11 +127,11 @@ export default function ThreadPage() {
       const newLevel = Math.floor(newXP / 100) + 1
 
       const { data: updatedUser, error: updateError } = await supabase
-        . from('users')
+        .from('users')
         .update({
           experience: newXP,
           level: newLevel,
-          posts:  (user.posts || 0) + 1
+          posts: (user.posts || 0) + 1
         })
         .eq('id', user.id)
         .select()
@@ -132,11 +144,12 @@ export default function ThreadPage() {
       }
 
       setReplyContent('')
+      setTweetUrl('')
       loadThread()
-      alert('Reply posted!  +5 XP')
+      alert('Reply posted! +5 XP')
     } catch (error: any) {
       console.error('Error:', error)
-      alert('Failed to post reply:  ' + error.message)
+      alert('Failed to post reply: ' + error.message)
     }
   }
 
@@ -149,14 +162,36 @@ export default function ThreadPage() {
   }
 
   const getAvatarUrl = (author: any) => {
-    // TODO: Update this if you're storing avatars in Supabase Storage
     if (!author || !author.avatar) return null
-    
-    // If using Supabase Storage: 
-    // return supabase.storage.from('avatars').getPublicUrl(author.avatar).data. publicUrl
-    
-    // If storing full URLs in the database:
     return author.avatar
+  }
+
+  const renderReplyContent = (reply: any) => {
+    if (thread?.category === 'Giveaways' && reply.content.startsWith('TWEET:')) {
+      const lines = reply.content.split('\n')
+      const tweetUrl = lines[0].replace('TWEET:', '').trim()
+      const tweetId = extractTweetId(tweetUrl)
+      const commentText = lines.slice(1).join('\n').trim()
+
+      return (
+        <div>
+          {tweetId && (
+            <div className="my-3 flex justify-center">
+              <Suspense fallback={<div className="text-gray-400 text-sm">Loading tweet...</div>}>
+                <Tweet id={tweetId} />
+              </Suspense>
+            </div>
+          )}
+          {!tweetId && tweetUrl && (
+            <a href={tweetUrl} target="_blank" rel="noopener noreferrer" className="text-[#5865f2] hover:underline">
+              🐦 View Tweet
+            </a>
+          )}
+          {commentText && <p className="text-white mt-2 whitespace-pre-wrap">{commentText}</p>}
+        </div>
+      )
+    }
+    return <p className="text-white mt-2 whitespace-pre-wrap">{reply.content}</p>
   }
 
   if (loading) {
@@ -172,7 +207,7 @@ export default function ThreadPage() {
       <div className="min-h-screen bg-[#0f0f0f]">
         <div className="bg-[#1a1a1a] border-b border-gray-800 py-4">
           <div className="max-w-4xl mx-auto px-4">
-            <Link href="/forum" className="text-[#5865f2] hover: underline">← Back to Forum</Link>
+            <Link href="/forum" className="text-[#5865f2] hover:underline">← Back to Forum</Link>
           </div>
         </div>
         <div className="max-w-4xl mx-auto px-4 py-8">
@@ -193,7 +228,7 @@ export default function ThreadPage() {
     <div className="min-h-screen bg-[#0f0f0f]">
       <div className="bg-[#1a1a1a] border-b border-gray-800 py-4">
         <div className="max-w-4xl mx-auto px-4">
-          <Link href={`/forum/${encodeURIComponent(thread.category)}`} className="text-[#5865f2] hover: underline text-sm">
+          <Link href={`/forum/${encodeURIComponent(thread.category)}`} className="text-[#5865f2] hover:underline text-sm">
             ← Back to {thread.category}
           </Link>
         </div>
@@ -211,7 +246,7 @@ export default function ThreadPage() {
             
             <div className="flex items-start gap-4 pb-4 border-b border-gray-800">
               <div className="w-16 h-16 bg-[#2a2a2a] rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
-                {getAvatarUrl(thread. author) ? (
+                {getAvatarUrl(thread.author) ? (
                   <img 
                     src={getAvatarUrl(thread.author)!} 
                     alt={thread.author?.username}
@@ -227,7 +262,7 @@ export default function ThreadPage() {
               <div className="flex-1">
                 <div className="flex items-baseline gap-2">
                   <Link 
-                    href={`/profile/${thread.author?. username}`}
+                    href={`/profile/${thread.author?.username}`}
                     className={`font-semibold hover:underline ${getUsernameColor(thread.author?.level || 1)}`}
                   >
                     {thread.author?.username || 'Unknown'}
@@ -253,7 +288,7 @@ export default function ThreadPage() {
 
         {/* Replies */}
         <div className="text-white font-semibold text-lg px-2">
-          {replies. length} {replies.length === 1 ?  'Reply' : 'Replies'}
+          {replies.length} {replies.length === 1 ? 'Reply' : 'Replies'}
         </div>
 
         {replies.map((reply) => (
@@ -268,7 +303,7 @@ export default function ThreadPage() {
                   />
                 ) : (
                   <span className="text-white text-lg font-semibold">
-                    {reply.author?.username?. charAt(0).toUpperCase() || '?'}
+                    {reply.author?.username?.charAt(0).toUpperCase() || '?'}
                   </span>
                 )}
               </div>
@@ -288,27 +323,45 @@ export default function ThreadPage() {
                     · {new Date(reply.created_at).toLocaleString()}
                   </span>
                 </div>
-                <p className="text-white mt-2 whitespace-pre-wrap">{reply.content}</p>
+                {renderReplyContent(reply)}
               </div>
             </div>
           </div>
         ))}
 
         {/* Reply Form */}
-        {user ?  (
+        {user ? (
           <div className="bg-[#1a1a1a] border border-gray-800 rounded p-6">
             <h3 className="text-white font-semibold mb-4">Post Reply (+5 XP)</h3>
             <form onSubmit={handleReply} className="space-y-4">
+              {thread.category === 'Giveaways' && (
+                <div>
+                  <label className="block text-white font-semibold mb-2">
+                    🐦 Tweet URL (required for giveaway entry)
+                  </label>
+                  <input
+                    type="url"
+                    value={tweetUrl}
+                    onChange={(e) => setTweetUrl(e.target.value)}
+                    placeholder="https://x.com/username/status/123456789"
+                    className="w-full bg-[#2a2a2a] border border-gray-700 text-white px-4 py-3 rounded focus:outline-none focus:border-[#5865f2]"
+                    required
+                  />
+                  <p className="text-gray-500 text-xs mt-1">
+                    Paste the URL of your tweet mentioning the token
+                  </p>
+                </div>
+              )}
               <textarea
                 value={replyContent}
-                onChange={(e) => setReplyContent(e.target. value)}
+                onChange={(e) => setReplyContent(e.target.value)}
                 placeholder="Write your reply..."
                 className="w-full bg-[#2a2a2a] border border-gray-700 text-white px-4 py-3 rounded focus:outline-none focus:border-[#5865f2] min-h-[120px]"
                 required
               />
               <button 
                 type="submit" 
-                className="bg-[#5865f2] hover: bg-[#4752c4] text-white px-6 py-2 rounded font-semibold transition"
+                className="bg-[#5865f2] hover:bg-[#4752c4] text-white px-6 py-2 rounded font-semibold transition"
               >
                 POST REPLY
               </button>

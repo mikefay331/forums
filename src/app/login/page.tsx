@@ -33,7 +33,7 @@ export default function LoginPage() {
       const { data:  userData, error: userError } = await supabase
         .from('users')
         .select('*')
-        .eq('email', formData.email)
+        .eq('id', authData.user.id)
         .single();
 
       if (userError) {
@@ -132,7 +132,7 @@ export default function LoginPage() {
         {/* Info Box */}
         <div className="mt-4 bg-[#1a1a1a] border border-gray-800 rounded-lg p-4">
           <p className="text-gray-400 text-sm text-center">
-            🚀 Join the community and start earning $FORUMS tokens!
+            🚀 Join the $FORUMS community and start posting!
           </p>
         </div>
       </div>

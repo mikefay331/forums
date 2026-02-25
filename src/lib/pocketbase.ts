@@ -1,16 +1,9 @@
 // src/lib/pocketbase.ts
-import PocketBase from 'pocketbase'
-
-export const pb = new PocketBase(
-  process.env. NEXT_PUBLIC_POCKETBASE_URL || 'http://127.0.0.1:8090'
-)
-
-pb.autoCancellation(false)
 
 export interface User {
   id: string
   username: string
-  email:  string
+  email: string
   avatar?: string
   bio?: string
   wallet_address?: string
@@ -18,8 +11,8 @@ export interface User {
   experience: number
   posts: number
   replies: number
-  total_earned?:  number
-  collectionId:  string
+  total_earned?: number
+  collectionId: string
   collectionName: string
   created: string
   updated: string
@@ -29,14 +22,14 @@ export interface Thread {
   id: string
   title: string
   content: string
-  author:  string
+  author: string
   category: string
   views: number
   replies_count: number
   is_pinned: boolean
   created: string
   updated: string
-  expand?:  {
+  expand?: {
     author: User
   }
 }
@@ -46,7 +39,7 @@ export interface Reply {
   content: string
   author: string
   thread: string
-  created:  string
+  created: string
   updated: string
   expand?: {
     author: User
@@ -56,12 +49,12 @@ export interface Reply {
 export interface Transaction {
   id: string
   user: string
-  amount:  number
+  amount: number
   tx_hash: string
   status: 'pending' | 'completed' | 'failed'
   level: number
   created: string
-  expand?:  {
+  expand?: {
     user: User
   }
 }
@@ -78,6 +71,7 @@ export const CATEGORIES = [
   'Marketplace',
   'Off-Topic',
   '$FORUMS Community',
+  'Giveaways',
 ]
 
 export const XP_REWARDS = {
@@ -87,7 +81,7 @@ export const XP_REWARDS = {
 }
 
 export function calculateLevel(xp: number): number {
-  return Math. floor(xp / XP_REWARDS.XP_PER_LEVEL) + 1
+  return Math.floor(xp / XP_REWARDS.XP_PER_LEVEL) + 1
 }
 
 export function getXPForNextLevel(currentXP: number): number {

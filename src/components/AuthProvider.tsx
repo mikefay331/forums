@@ -8,20 +8,29 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   const { setUser, setLoading } = useAuthStore();
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    const initSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
-        // Fetch profile data from the public 'users' table
-        const { data: profile } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', session.user.id)
-          .single();
-        
+        const { data: profile } = await supabase.from('users').select('*').eq('id', session.user.id).single();
         setUser(profile as any);
       } else {
         setUser(null);
       }
       setLoading(false);
+    };
+    initSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session?.user) {
+        const { data: profile } = await supabase
+          .from('users')
+          .select('*')
+          .eq('id', session.user.id)
+          .single();
+        setUser(profile as any);
+      } else {
+        setUser(null);
+      }
     });
 
     return () => subscription.unsubscribe();

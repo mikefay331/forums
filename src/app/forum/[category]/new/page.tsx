@@ -6,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 
-const ADMIN_USERNAMES = ['tet', 'admin', 'mikefay331'] // Add your username here
+const ADMIN_USERNAMES = ['tet', 'admin', 'mikefay331']
 
 export default function NewThreadPage() {
   const params = useParams()
@@ -18,10 +18,12 @@ export default function NewThreadPage() {
   const [content, setContent] = useState('')
   const [submitting, setSubmitting] = useState(false)
 
+  const isAdmin = user && (ADMIN_USERNAMES.includes(user.username) || user.role === 'admin')
+
   // Check if user can post in this category
   const canPostInCategory = () => {
-    if (category === 'Announcements') {
-      return user && ADMIN_USERNAMES.includes(user. username)
+    if (category === 'Announcements' || category === 'Giveaways') {
+      return isAdmin
     }
     return true // All users can post in other categories
   }
@@ -37,11 +39,11 @@ export default function NewThreadPage() {
 
     // Double-check permissions
     if (!canPostInCategory()) {
-      alert('Only admins can post in Announcements')
+      alert('Only admins can post in ' + category)
       return
     }
 
-    if (! title.trim() || !content.trim()) {
+    if (!title.trim() || !content.trim()) {
       alert('Please fill in all fields')
       return
     }
@@ -50,10 +52,10 @@ export default function NewThreadPage() {
 
     try {
       // Create thread
-      const { data: thread, error:  threadError } = await supabase
+      const { data: thread, error: threadError } = await supabase
         .from('threads')
         .insert({
-          title:  title.trim(),
+          title: title.trim(),
           content: content.trim(),
           category,
           author_id: user.id,
@@ -66,11 +68,11 @@ export default function NewThreadPage() {
       if (threadError) throw threadError
 
       // Award XP for creating thread
-      const { error:  updateError } = await supabase
+      const { error: updateError } = await supabase
         .from('users')
         .update({
           experience: (user.experience || 0) + 10,
-          posts: (user. posts || 0) + 1,
+          posts: (user.posts || 0) + 1,
         })
         .eq('id', user.id)
 
@@ -88,7 +90,7 @@ export default function NewThreadPage() {
   }
 
   // Show error if user can't post
-  if (! canPostInCategory()) {
+  if (!canPostInCategory()) {
     return (
       <div className="min-h-screen bg-[#0f0f0f]">
         <div className="bg-[#1a1a1a] border-b border-gray-800 py-8">
@@ -99,7 +101,7 @@ export default function NewThreadPage() {
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="bg-red-900/20 border border-red-600/30 rounded p-6">
             <p className="text-red-400 text-lg">
-              ⚠️ Only administrators can post in the Announcements forum.
+              ⚠️ Only administrators can post in the {category} forum.
             </p>
             <button
               onClick={() => router.push('/forum')}
@@ -141,7 +143,7 @@ export default function NewThreadPage() {
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Enter thread title..."
                 maxLength={200}
-                className="w-full bg-[#2a2a2a] border border-gray-700 text-white px-4 py-3 rounded focus: outline-none focus:border-[#5865f2]"
+                className="w-full bg-[#2a2a2a] border border-gray-700 text-white px-4 py-3 rounded focus:outline-none focus:border-[#5865f2]"
                 required
               />
             </div>
@@ -156,7 +158,7 @@ export default function NewThreadPage() {
                 onChange={(e) => setContent(e.target.value)}
                 placeholder="Write your post..."
                 rows={12}
-                className="w-full bg-[#2a2a2a] border border-gray-700 text-white px-4 py-3 rounded focus: outline-none focus:border-[#5865f2]"
+                className="w-full bg-[#2a2a2a] border border-gray-700 text-white px-4 py-3 rounded focus:outline-none focus:border-[#5865f2]"
                 required
               />
             </div>
@@ -166,15 +168,15 @@ export default function NewThreadPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="bg-[#5865f2] hover:bg-[#4752c4] disabled: bg-gray-600 text-white px-6 py-3 rounded font-semibold transition"
+                className="bg-[#5865f2] hover:bg-[#4752c4] disabled:bg-gray-600 text-white px-6 py-3 rounded font-semibold transition"
               >
-                {submitting ? 'Creating...' :  'Create Thread'}
+                {submitting ? 'Creating...' : 'Create Thread'}
               </button>
               <button
                 type="button"
                 onClick={() => router.back()}
                 disabled={submitting}
-                className="bg-gray-700 hover: bg-gray-600 text-white px-6 py-3 rounded transition"
+                className="bg-gray-700 hover:bg-gray-600 text-white px-6 py-3 rounded transition"
               >
                 Cancel
               </button>

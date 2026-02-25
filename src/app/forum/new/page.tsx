@@ -18,11 +18,12 @@ const CATEGORIES = [
   'Economy',
   'Marketplace',
   'Off-Topic',
-  '$FORUMS Community'
+  '$FORUMS Community',
+  'Giveaways',
 ]
 
 // Add your admin username(s) here
-const ADMIN_USERNAMES = ['tesst', 'admin', 'mikefay331']
+const ADMIN_USERNAMES = ['tet', 'admin', 'mikefay331']
 
 const XP_REWARDS = {
   NEW_THREAD: 10,
@@ -43,7 +44,7 @@ export default function NewThreadPage() {
   })
   const [loading, setLoading] = useState(false)
 
-  const isAdmin = user && ADMIN_USERNAMES.includes(user.username)
+  const isAdmin = user && (ADMIN_USERNAMES.includes(user.username) || user.role === 'admin')
 
   useEffect(() => {
     if (! user) {
@@ -56,8 +57,8 @@ export default function NewThreadPage() {
     if (!user) return
 
     // Check if user can post in selected category
-    if (formData.category === 'Announcements' && !isAdmin) {
-      alert('⚠️ Only administrators can post in Announcements')
+    if ((formData.category === 'Announcements' || formData.category === 'Giveaways') && !isAdmin) {
+      alert('⚠️ Only administrators can post in ' + formData.category)
       return
     }
 
@@ -143,7 +144,7 @@ export default function NewThreadPage() {
                 required
               >
                 {CATEGORIES.map((cat) => {
-                  const isLocked = cat === 'Announcements' && !isAdmin
+                  const isLocked = (cat === 'Announcements' || cat === 'Giveaways') && !isAdmin
                   return (
                     <option 
                       key={cat} 
@@ -155,9 +156,9 @@ export default function NewThreadPage() {
                   )
                 })}
               </select>
-              {formData.category === 'Announcements' && !isAdmin && (
+              {(formData.category === 'Announcements' || formData.category === 'Giveaways') && !isAdmin && (
                 <p className="text-yellow-400 text-xs mt-2">
-                  ⚠️ Only administrators can post in Announcements.  Please select a different category.
+                  ⚠️ Only administrators can post in {formData.category}. Please select a different category.
                 </p>
               )}
             </div>
@@ -203,7 +204,7 @@ export default function NewThreadPage() {
             <div className="flex gap-3 pt-4 border-t border-gray-800">
               <button
                 type="submit"
-                disabled={loading || (formData. category === 'Announcements' && !isAdmin)}
+                disabled={loading || ((formData.category === 'Announcements' || formData.category === 'Giveaways') && !isAdmin)}
                 className="flex-1 bg-[#5865f2] hover: bg-[#4752c4] disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-6 py-3 rounded font-semibold transition"
               >
                 {loading ?  'Creating Thread...' : `Create Thread (+${XP_REWARDS.NEW_THREAD} XP)`}
@@ -228,7 +229,7 @@ export default function NewThreadPage() {
             <li>• Use a clear and descriptive title</li>
             <li>• Be respectful and follow community guidelines</li>
             <li>• You'll earn {XP_REWARDS.NEW_THREAD} XP for creating a thread</li>
-            {! isAdmin && <li>• 🔒 Only admins can post in Announcements</li>}
+            {!isAdmin && <li>• 🔒 Only admins can post in Announcements or Giveaways</li>}
           </ul>
         </div>
       </div>

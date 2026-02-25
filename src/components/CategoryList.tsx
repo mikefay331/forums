@@ -10,10 +10,10 @@ const CATEGORIES = [
   { name: 'Bitcoin Discussion', icon: '₿', description: 'Discuss bitcoin discussion' },
   { name: 'Altcoin Discussion', icon: '🪙', description: 'Discuss altcoin discussion' },
   { name: 'Trading & Speculation', icon: '📈', description: 'Discuss trading & speculation' },
-  { name:  'Mining', icon: '⛏️', description: 'Discuss mining' },
+  { name: 'Mining', icon: '⛏️', description: 'Discuss mining' },
   { name: 'Technical Support', icon: '🔧', description: 'Discuss technical support' },
   { name: 'Development & Technical', icon: '💻', description: 'Discuss development & technical' },
-  { name: 'Economy', icon: '💰', description:  'Discuss economy' },
+  { name: 'Economy', icon: '💰', description: 'Discuss economy' },
   { name: 'Marketplace', icon: '🛒', description: 'Discuss marketplace' },
   { name: 'Off-Topic', icon: '💬', description: 'Discuss off-topic' },
   { name: '$FORUMS Community', icon: '🎯', description: 'Discuss $forums community' }
@@ -29,23 +29,25 @@ export default function CategoryList() {
 
   const loadCategoryStats = async () => {
     try {
-      // Load all threads once
-      const allThreads = await pb.collection('threads').getList(1, 500, {
-        expand: 'author',
-        sort: '-updated',
-        $autoCancel: false
-      })
+      // Load all threads with author info using Supabase
+      const { data: allThreads, error } = await supabase
+        .from('threads')
+        .select('*, author:users(username)')
+        .order('updated_at', { ascending: false })
+        .limit(500)
+
+      if (error) throw error
 
       // Group by category
-      const stats:  any = {}
+      const stats: any = {}
       
       CATEGORIES.forEach(cat => {
-        const categoryThreads = allThreads.items.filter(t => t.category === cat.name)
+        const categoryThreads = (allThreads || []).filter((t: any) => t.category === cat.name)
         const latestThread = categoryThreads[0]
         
         stats[cat.name] = {
           threadCount: categoryThreads.length,
-          postCount: categoryThreads.reduce((sum, t) => sum + (t.replies_count || 0), 0) + categoryThreads.length,
+          postCount: categoryThreads.reduce((sum: number, t: any) => sum + (t.replies_count || 0), 0) + categoryThreads.length,
           latestThread: latestThread || null
         }
       })
@@ -87,7 +89,7 @@ export default function CategoryList() {
       {/* Categories */}
       <div className="divide-y divide-gray-800">
         {CATEGORIES.map((category) => {
-          const stats = categoryStats[category.name] || { threadCount: 0, postCount: 0, latestThread:  null }
+          const stats = categoryStats[category.name] || { threadCount: 0, postCount: 0, latestThread: null }
           
           return (
             <Link
@@ -107,14 +109,14 @@ export default function CategoryList() {
               {/* Thread Count */}
               <div className="col-span-2 text-center">
                 <p className="text-white font-bold text-lg">
-                  {loading ? '...' : stats.threadCount. toLocaleString()}
+                  {loading ? '...' : stats.threadCount.toLocaleString()}
                 </p>
               </div>
 
               {/* Post Count */}
               <div className="col-span-2 text-center">
                 <p className="text-white font-bold text-lg">
-                  {loading ? '...' :  stats.postCount.toLocaleString()}
+                  {loading ? '...' : stats.postCount.toLocaleString()}
                 </p>
               </div>
 
@@ -126,10 +128,10 @@ export default function CategoryList() {
                       {stats.latestThread.title}
                     </p>
                     <p className="text-gray-500 text-xs mt-1">
-                      by {stats.latestThread.expand?.author?.username || 'Unknown'}
+                      by {stats.latestThread.author?.username || 'Unknown'}
                     </p>
                     <p className="text-gray-600 text-xs">
-                      {formatDate(stats.latestThread.updated)}
+                      {formatDate(stats.latestThread.updated_at)}
                     </p>
                   </div>
                 ) : (

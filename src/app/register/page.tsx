@@ -18,7 +18,7 @@ export default function RegisterPage() {
   });
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e:  React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (formData.password !== formData.passwordConfirm) {
@@ -38,7 +38,7 @@ export default function RegisterPage() {
       const { data: existing } = await supabase
         .from('users')
         .select('username')
-        .eq('username', formData.username. toLowerCase())
+        .eq('username', formData.username.toLowerCase())
         .maybeSingle();
 
       if (existing) {
@@ -47,19 +47,19 @@ export default function RegisterPage() {
         return;
       }
 
-      // Just sign up - the trigger will create the profile automatically! 
-      const { data, error } = await supabase. auth.signUp({
+      // Just sign up - the trigger will create the profile automatically!
+      const { data, error } = await supabase.auth.signUp({
         email: formData.email,
-        password: formData. password,
+        password: formData.password,
         options: {
           data: {
-            username: formData.username. toLowerCase()
+            username: formData.username.toLowerCase()
           }
         }
       });
 
       if (error) throw error;
-      if (! data.user) throw new Error('No user created');
+      if (!data.user) throw new Error('No user created');
 
       // Wait a moment for trigger to complete
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -81,13 +81,13 @@ export default function RegisterPage() {
         setUser(userData);
       }
 
-      toast.success('Account created!  🎉');
+      toast.success('Account created! 🎉');
       router.push('/');
       
-    } catch (error:  any) {
+    } catch (error: any) {
       console.error('Error:', error);
       
-      if (error.message?. includes('User already registered')) {
+      if (error.message?.includes('User already registered')) {
         toast.error('Email already registered');
       } else {
         toast.error(error.message || 'Registration failed');
@@ -117,8 +117,8 @@ export default function RegisterPage() {
                 minLength={3}
                 maxLength={20}
                 className="w-full bg-[#2a2a2a] border border-gray-700 text-white px-4 py-3 rounded focus:outline-none focus:border-[#5865f2]"
-                value={formData. username}
-                onChange={(e) => setFormData({ ...formData, username: e.target.value. toLowerCase().replace(/[^a-z0-9_]/g, '') })}
+                value={formData.username}
+                onChange={(e) => setFormData({ ...formData, username: e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '') })}
                 placeholder="username"
               />
               <p className="text-xs text-gray-500 mt-1">
@@ -148,7 +148,7 @@ export default function RegisterPage() {
                 type="password"
                 required
                 minLength={6}
-                className="w-full bg-[#2a2a2a] border border-gray-700 text-white px-4 py-3 rounded focus: outline-none focus:border-[#5865f2]"
+                className="w-full bg-[#2a2a2a] border border-gray-700 text-white px-4 py-3 rounded focus:outline-none focus:border-[#5865f2]"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 placeholder="Min 6 characters"
@@ -174,12 +174,12 @@ export default function RegisterPage() {
               disabled={loading}
               className="w-full bg-[#5865f2] hover:bg-[#4752c4] disabled:bg-gray-600 text-white px-6 py-3 rounded font-semibold transition"
             >
-              {loading ?  'Creating.. .' : 'Create Account'}
+              {loading ? 'Creating...' : 'Create Account'}
             </button>
           </form>
 
           <div className="px-6 pb-6 text-center border-t border-gray-800 pt-6">
-            <Link href="/login" className="text-[#5865f2] hover: underline">
+            <Link href="/login" className="text-[#5865f2] hover:underline">
               Already have an account? Login
             </Link>
           </div>

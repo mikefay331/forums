@@ -33,10 +33,6 @@ export default function Navbar() {
               Forum
             </Link>
 
-            <Link href="/treasury" className="text-gray-400 hover:text-white transition">
-              Treasury
-            </Link>
-
             {user && (
               <Link href="/messages" className="text-gray-400 hover:text-white transition">
                 Messages

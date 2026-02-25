@@ -6,6 +6,12 @@ import { useParams, useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/lib/store'
 import Link from 'next/link'
+import { Tweet } from 'react-tweet'
+
+function extractTweetId(url: string): string | null {
+  const match = url.match(/(?:twitter\.com|x\.com)\/\w+\/status\/(\d+)/)
+  return match ? match[1] : null
+}
 
 export default function ThreadPage() {
   const params = useParams()
@@ -14,6 +20,7 @@ export default function ThreadPage() {
   const [thread, setThread] = useState<any>(null)
   const [replies, setReplies] = useState<any[]>([])
   const [replyContent, setReplyContent] = useState('')
+  const [tweetUrl, setTweetUrl] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -95,18 +102,29 @@ export default function ThreadPage() {
 
   const handleReply = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user || !replyContent. trim()) return
+    if (!user || !replyContent.trim()) return
+
+    const isGiveaway = thread?.category === 'Giveaways'
+    if (isGiveaway && !tweetUrl.trim()) {
+      alert('Please provide your tweet URL to participate in this giveaway')
+      return
+    }
 
     try {
       // Create reply (post)
+      const insertData: any = {
+        content: replyContent,
+        author_id: user.id,
+        thread_id: params.id,
+        likes: 0
+      }
+      if (isGiveaway && tweetUrl.trim()) {
+        insertData.tweet_url = tweetUrl.trim()
+      }
+
       const { error:  replyError } = await supabase
         .from('posts')
-        .insert({
-          content: replyContent,
-          author_id: user.id,
-          thread_id: params.id,
-          likes: 0
-        })
+        .insert(insertData)
 
       if (replyError) throw replyError
 
@@ -132,6 +150,7 @@ export default function ThreadPage() {
       }
 
       setReplyContent('')
+      setTweetUrl('')
       loadThread()
       alert('Reply posted!  +5 XP')
     } catch (error: any) {
@@ -268,7 +287,7 @@ export default function ThreadPage() {
                   />
                 ) : (
                   <span className="text-white text-lg font-semibold">
-                    {reply.author?.username?. charAt(0).toUpperCase() || '?'}
+                    {reply.author?.username?.charAt(0).toUpperCase() || '?'}
                   </span>
                 )}
               </div>
@@ -289,28 +308,58 @@ export default function ThreadPage() {
                   </span>
                 </div>
                 <p className="text-white mt-2 whitespace-pre-wrap">{reply.content}</p>
+                {reply.tweet_url && (() => {
+                  const tweetId = extractTweetId(reply.tweet_url)
+                  return tweetId ? (
+                    <div className="mt-3">
+                      <Tweet id={tweetId} />
+                    </div>
+                  ) : (
+                    <a href={reply.tweet_url} target="_blank" rel="noopener noreferrer" className="text-[#5865f2] hover:underline text-sm mt-2 block">
+                      🐦 {reply.tweet_url}
+                    </a>
+                  )
+                })()}
               </div>
             </div>
           </div>
         ))}
 
         {/* Reply Form */}
-        {user ?  (
+        {user ? (
           <div className="bg-[#1a1a1a] border border-gray-800 rounded p-6">
-            <h3 className="text-white font-semibold mb-4">Post Reply (+5 XP)</h3>
+            <h3 className="text-white font-semibold mb-4">
+              {thread?.category === 'Giveaways' ? '🎁 Submit Giveaway Entry (+5 XP)' : 'Post Reply (+5 XP)'}
+            </h3>
             <form onSubmit={handleReply} className="space-y-4">
+              {thread?.category === 'Giveaways' && (
+                <div>
+                  <label className="block text-white font-semibold mb-2 text-sm">
+                    🐦 Tweet URL (required)
+                  </label>
+                  <input
+                    type="url"
+                    value={tweetUrl}
+                    onChange={(e) => setTweetUrl(e.target.value)}
+                    placeholder="https://x.com/yourhandle/status/..."
+                    className="w-full bg-[#2a2a2a] border border-gray-700 text-white px-4 py-3 rounded focus:outline-none focus:border-[#5865f2]"
+                    required
+                  />
+                  <p className="text-gray-500 text-xs mt-1">Post on X mentioning the CA/ticker, then paste your tweet URL here</p>
+                </div>
+              )}
               <textarea
                 value={replyContent}
-                onChange={(e) => setReplyContent(e.target. value)}
-                placeholder="Write your reply..."
+                onChange={(e) => setReplyContent(e.target.value)}
+                placeholder={thread?.category === 'Giveaways' ? 'Add a note about your entry (optional)...' : 'Write your reply...'}
                 className="w-full bg-[#2a2a2a] border border-gray-700 text-white px-4 py-3 rounded focus:outline-none focus:border-[#5865f2] min-h-[120px]"
                 required
               />
               <button 
                 type="submit" 
-                className="bg-[#5865f2] hover: bg-[#4752c4] text-white px-6 py-2 rounded font-semibold transition"
+                className="bg-[#5865f2] hover:bg-[#4752c4] text-white px-6 py-2 rounded font-semibold transition"
               >
-                POST REPLY
+                {thread?.category === 'Giveaways' ? 'SUBMIT ENTRY' : 'POST REPLY'}
               </button>
             </form>
           </div>

@@ -78,6 +78,7 @@ export const CATEGORIES = [
   'Marketplace',
   'Off-Topic',
   '$FORUMS Community',
+  'Giveaways',
 ]
 
 export const XP_REWARDS = {

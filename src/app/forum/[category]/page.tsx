@@ -43,9 +43,9 @@ export default function CategoryPage() {
       if (error) throw error
 
       // Transform data to include replies_count
-      const threadsWithCounts = data?. map(thread => ({
-        ... thread,
-        replies_count:  thread.posts? .[0]?.count || 0
+      const threadsWithCounts = data?.map(thread => ({
+        ...thread,
+        replies_count:  thread.posts?.[0]?.count || 0
       })) || []
 
       setThreads(threadsWithCounts)

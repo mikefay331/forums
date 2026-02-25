@@ -20,8 +20,8 @@ export default function NewThreadPage() {
 
   // Check if user can post in this category
   const canPostInCategory = () => {
-    if (category === 'Announcements') {
-      return user && ADMIN_USERNAMES.includes(user. username)
+    if (category === 'Announcements' || category === 'Giveaways') {
+      return user && (ADMIN_USERNAMES.includes(user.username) || user.role === 'admin')
     }
     return true // All users can post in other categories
   }
@@ -37,7 +37,7 @@ export default function NewThreadPage() {
 
     // Double-check permissions
     if (!canPostInCategory()) {
-      alert('Only admins can post in Announcements')
+      alert('Only admins can post in ' + category)
       return
     }
 
@@ -99,7 +99,7 @@ export default function NewThreadPage() {
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="bg-red-900/20 border border-red-600/30 rounded p-6">
             <p className="text-red-400 text-lg">
-              ⚠️ Only administrators can post in the Announcements forum.
+              ⚠️ Only administrators can post in the {category} forum.
             </p>
             <button
               onClick={() => router.push('/forum')}

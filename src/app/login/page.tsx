@@ -22,15 +22,15 @@ export default function LoginPage() {
 
     try {
       // Sign in with Supabase Auth
-      const { data: authData, error:  authError } = await supabase.auth.signInWithPassword({
+      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: formData.email,
-        password: formData. password,
+        password: formData.password,
       });
 
       if (authError) throw authError;
 
       // Fetch user profile from users table
-      const { data:  userData, error: userError } = await supabase
+      const { data: userData, error: userError } = await supabase
         .from('users')
         .select('*')
         .eq('id', authData.user.id)
@@ -38,10 +38,10 @@ export default function LoginPage() {
 
       if (userError) {
         // If user doesn't exist in users table, create profile (fallback)
-        const { data:  newUser, error: createError } = await supabase
-          . from('users')
+        const { data: newUser, error: createError } = await supabase
+          .from('users')
           .insert({
-            id: authData.user?. id, // Use auth user ID
+            id: authData.user?.id,
             email: formData.email,
             username: formData.email.split('@')[0], // Default username from email
             experience: 0,
@@ -88,7 +88,7 @@ export default function LoginPage() {
               <input
                 type="email"
                 required
-                className="w-full bg-[#2a2a2a] border border-gray-700 text-white px-4 py-3 rounded focus:outline-none focus:border-[#5865f2] focus: ring-1 focus:ring-[#5865f2]"
+                className="w-full bg-[#2a2a2a] border border-gray-700 text-white px-4 py-3 rounded focus:outline-none focus:border-[#5865f2] focus:ring-1 focus:ring-[#5865f2]"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 placeholder="your@email.com"
@@ -102,9 +102,9 @@ export default function LoginPage() {
               <input
                 type="password"
                 required
-                className="w-full bg-[#2a2a2a] border border-gray-700 text-white px-4 py-3 rounded focus:outline-none focus:border-[#5865f2] focus:ring-1 focus: ring-[#5865f2]"
+                className="w-full bg-[#2a2a2a] border border-gray-700 text-white px-4 py-3 rounded focus:outline-none focus:border-[#5865f2] focus:ring-1 focus:ring-[#5865f2]"
                 value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target. value })}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                 placeholder="Enter password"
               />
             </div>

@@ -24,16 +24,11 @@ export default function CategoryPage() {
     try {
       // Fetch threads with author data and posts count
       const { data, error } = await supabase
-        . from('threads')
+        .from('threads')
         .select(`
           *,
-          author: users! author_id (
-            id,
-            username,
-            avatar,
-            level
-          ),
-          posts: posts(count)
+          author:users!author_id(id, username, avatar, level),
+          posts:posts(count)
         `)
         .eq('category', category)
         .order('is_pinned', { ascending: false })
@@ -64,15 +59,9 @@ export default function CategoryPage() {
   }
 
   const getAvatarUrl = (author: any) => {
-    // TODO: Update this if you're storing avatars in Supabase Storage
-    // For now, return null or update with your Supabase storage URL
-    if (! author || !author.avatar) return null
-    
-    // If using Supabase Storage: 
-    // return supabase.storage.from('avatars').getPublicUrl(author.avatar).data. publicUrl
-    
-    // If storing full URLs in the database:
-    return author.avatar
+    if (!author?.avatar) return null
+    if (author.avatar.startsWith('http')) return author.avatar
+    return supabase.storage.from('avatars').getPublicUrl(author.avatar).data.publicUrl
   }
 
   const formatDate = (dateString: string) => {
@@ -157,8 +146,8 @@ export default function CategoryPage() {
                           {thread.title}
                         </h3>
                         <p className="text-gray-500 text-sm truncate mt-1">
-                          {thread.content?. substring(0, 100)}
-                          {thread.content?.length > 100 && '... '}
+                          {thread.content?.substring(0, 100)}
+                          {thread.content?.length > 100 && '...'}
                         </p>
                       </div>
                     </div>
@@ -170,12 +159,12 @@ export default function CategoryPage() {
                       {getAvatarUrl(thread.author) ? (
                         <img
                           src={getAvatarUrl(thread.author)!}
-                          alt={thread. author?.username}
+                          alt={thread.author?.username}
                           className="w-full h-full object-cover"
                         />
                       ) : (
                         <span className="text-white text-xs font-semibold">
-                          {thread.author?. username?. charAt(0).toUpperCase() || '?'}
+                          {thread.author?.username?.charAt(0).toUpperCase() || '?'}
                         </span>
                       )}
                     </div>
@@ -197,7 +186,7 @@ export default function CategoryPage() {
                         <p className="text-gray-500 text-xs">Replies</p>
                       </div>
                       <div>
-                        <p className="text-white font-semibold">{thread. views || 0}</p>
+                        <p className="text-white font-semibold">{thread.views || 0}</p>
                         <p className="text-gray-500 text-xs">Views</p>
                       </div>
                     </div>

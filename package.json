@@ -9,14 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@solana/spl-token": "^0.4.14",
-    "@solana/web3.js": "^1.95.3",
     "browser-image-compression": "^2.0.2",
-    "bs58": "^6.0.0",
     "date-fns": "^3.6.0",
     "@supabase/supabase-js": "^2.39.0",
     "next": "14.2.13",
-    "pocketbase": "^0.21.5",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hot-toast": "^2.4.1",

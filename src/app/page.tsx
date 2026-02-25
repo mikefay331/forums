@@ -1,7 +1,6 @@
 // src/app/page.tsx
 import LatestActivities from '@/components/LatestActivities'
 import Shoutbox from '@/components/Shoutbox'
-import TreasuryWidget from '@/components/TreasuryWidget'
 import Advertisement from '@/components/Advertisement'
 import ForumStats from '@/components/ForumStats'
 import CategoryList from '@/components/CategoryList'
@@ -13,7 +12,7 @@ export default function HomePage() {
       <div className="bg-[#1a1a1a] border-b border-gray-800 py-8">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <h1 className="text-4xl font-bold text-white mb-2">$FORUMS</h1>
-          <p className="text-gray-400">Earn crypto by posting.  Level up, get paid.</p>
+          <p className="text-gray-400">The crypto community forum. Level up by posting.</p>
         </div>
       </div>
 
@@ -38,17 +37,16 @@ export default function HomePage() {
             <div className="bg-[#1a1a1a] border border-gray-800 rounded mt-4 p-6">
               <h2 className="text-white font-semibold mb-4">How It Works</h2>
               <ol className="space-y-2 text-gray-400 text-sm">
-                <li>1. Register an account (no email required)</li>
+                <li>1. Register an account</li>
                 <li>2. Post threads (+10 XP) and replies (+5 XP)</li>
                 <li>3. Level up every 100 XP</li>
-                <li>4. Receive $FORUMS tokens every 5 minutes</li>
+                <li>4. Engage with the community and grow your reputation</li>
               </ol>
             </div>
           </div>
 
-          {/* Sidebar Right - Treasury & Latest Activity */}
+          {/* Sidebar Right - Latest Activity */}
           <div className="lg:col-span-3 space-y-4">
-            <TreasuryWidget />
             <LatestActivities />
             <Advertisement slot="sidebar" />
           </div>

@@ -18,10 +18,16 @@ export default function Advertisement({ slot }: AdSlotProps) {
   const loadAd = async () => {
     try {
       const now = new Date().toISOString()
-      const result = await pb.collection('advertisements').getList(1, 1, {
-        filter: `slot = "${slot}" && active = true && start_date <= "${now}" && end_date >= "${now}"`
-      })
-      if (result.items.length > 0) setAd(result.items[0])
+      const { data } = await supabase
+        .from('advertisements')
+        .select('*')
+        .eq('slot', slot)
+        .eq('active', true)
+        .lte('start_date', now)
+        .gte('end_date', now)
+        .limit(1)
+        .maybeSingle()
+      if (data) setAd(data)
     } catch (error) {
       // Silent fail
     }
@@ -41,7 +47,7 @@ export default function Advertisement({ slot }: AdSlotProps) {
 
   return (
     <a href={ad.link} target="_blank" className="block bg-[#1a1a1a] border border-[#5865f2] rounded overflow-hidden hover:border-white transition">
-      {ad.image_url ?  (
+      {ad.image_url ? (
         <img src={ad.image_url} alt={ad.title} className="w-full" />
       ) : (
         <div className="p-6 text-center">

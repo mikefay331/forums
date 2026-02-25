@@ -29,23 +29,26 @@ export default function CategoryList() {
 
   const loadCategoryStats = async () => {
     try {
-      // Load all threads once
-      const allThreads = await pb.collection('threads').getList(1, 500, {
-        expand: 'author',
-        sort: '-updated',
-        $autoCancel: false
-      })
+      const { data: threadsData, error } = await supabase
+        .from('threads')
+        .select(`
+          id, title, category, updated_at,
+          author:users!author_id(username),
+          posts:posts(count)
+        `)
+        .order('updated_at', { ascending: false })
 
-      // Group by category
-      const stats:  any = {}
-      
+      if (error) throw error
+
+      const stats: any = {}
+
       CATEGORIES.forEach(cat => {
-        const categoryThreads = allThreads.items.filter(t => t.category === cat.name)
+        const categoryThreads = (threadsData || []).filter((t: any) => t.category === cat.name)
         const latestThread = categoryThreads[0]
-        
+
         stats[cat.name] = {
           threadCount: categoryThreads.length,
-          postCount: categoryThreads.reduce((sum, t) => sum + (t.replies_count || 0), 0) + categoryThreads.length,
+          postCount: categoryThreads.reduce((sum: number, t: any) => sum + (t.posts?.[0]?.count || 0), 0) + categoryThreads.length,
           latestThread: latestThread || null
         }
       })
@@ -126,10 +129,10 @@ export default function CategoryList() {
                       {stats.latestThread.title}
                     </p>
                     <p className="text-gray-500 text-xs mt-1">
-                      by {stats.latestThread.expand?.author?.username || 'Unknown'}
+                      by {stats.latestThread.author?.username || 'Unknown'}
                     </p>
                     <p className="text-gray-600 text-xs">
-                      {formatDate(stats.latestThread.updated)}
+                      {formatDate(stats.latestThread.updated_at)}
                     </p>
                   </div>
                 ) : (

@@ -21,7 +21,7 @@ export default function LatestActivities() {
         .from('threads')
         .select(`
           *,
-          author:users (username, level)
+          author:users!author_id(username, level)
         `)
         .order('updated_at', { ascending: false })
         .limit(5)

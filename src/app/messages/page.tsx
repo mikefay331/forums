@@ -18,7 +18,7 @@ function MessagesContent() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (! user) {
+    if (!user) {
       router.push('/login')
       return
     }
@@ -46,24 +46,14 @@ function MessagesContent() {
 
     try {
       // Get all messages where user is sender or recipient
-      const { data:  allMessages, error } = await supabase
+      const { data: allMessages, error } = await supabase
         .from('messages')
         .select(`
           *,
-          sender: users! sender_id (
-            id,
-            username,
-            avatar,
-            level
-          ),
-          recipient: users!recipient_id (
-            id,
-            username,
-            avatar,
-            level
-          )
+          sender:users!sender_id(id, username, avatar, level),
+          recipient:users!recipient_id(id, username, avatar, level)
         `)
-        .or(`sender_id. eq. ${user.id},recipient_id.eq.${user.id}`)
+        .or(`sender_id.eq.${user.id},recipient_id.eq.${user.id}`)
         .order('created_at', { ascending: false })
 
       if (error) throw error
@@ -71,13 +61,13 @@ function MessagesContent() {
       // Get unique users and their last message
       const userMap = new Map()
       
-      allMessages?. forEach((msg:  any) => {
-        const otherUser = msg.sender_id === user.id ? msg.recipient :  msg.sender
+      allMessages?.forEach((msg: any) => {
+        const otherUser = msg.sender_id === user.id ? msg.recipient : msg.sender
         
-        if (otherUser && !userMap.has(otherUser. id)) {
-          userMap. set(otherUser.id, {
-            ... otherUser,
-            lastMessage: msg. content,
+        if (otherUser && !userMap.has(otherUser.id)) {
+          userMap.set(otherUser.id, {
+            ...otherUser,
+            lastMessage: msg.content,
             lastMessageTime: msg.created_at,
             unread: msg.recipient_id === user.id && !msg.is_read
           })
@@ -96,7 +86,7 @@ function MessagesContent() {
 
   const openConversationByUsername = async (username: string) => {
     try {
-      const { data:  users, error } = await supabase
+      const { data: users, error } = await supabase
         .from('users')
         .select('*')
         .eq('username', username)
@@ -126,18 +116,10 @@ function MessagesContent() {
         .from('messages')
         .select(`
           *,
-          sender: users!sender_id (
-            id,
-            username,
-            avatar
-          ),
-          recipient: users! recipient_id (
-            id,
-            username,
-            avatar
-          )
+          sender:users!sender_id(id, username, avatar),
+          recipient:users!recipient_id(id, username, avatar)
         `)
-        .or(`and(sender_id.eq.${user.id},recipient_id. eq.${otherUserId}),and(sender_id.eq.${otherUserId},recipient_id.eq.${user.id})`)
+        .or(`and(sender_id.eq.${user.id},recipient_id.eq.${otherUserId}),and(sender_id.eq.${otherUserId},recipient_id.eq.${user.id})`)
         .order('created_at', { ascending: true })
 
       if (error) throw error
@@ -150,7 +132,7 @@ function MessagesContent() {
       ) || []
 
       if (unreadMessages.length > 0) {
-        const unreadIds = unreadMessages. map(msg => msg.id)
+        const unreadIds = unreadMessages.map(msg => msg.id)
         
         await supabase
           .from('messages')
@@ -174,8 +156,8 @@ function MessagesContent() {
         .from('messages')
         .insert({
           sender_id: user.id,
-          recipient_id: selectedUser. id,
-          content: newMessage. trim(),
+          recipient_id: selectedUser.id,
+          content: newMessage.trim(),
           is_read: false
         })
 
@@ -190,10 +172,10 @@ function MessagesContent() {
     }
   }
 
-  const getAvatarUrl = (user:  any) => {
-    // TODO: Update if using Supabase Storage
-    if (! user?. avatar) return null
-    return user.avatar
+  const getAvatarUrl = (user: any) => {
+    if (!user?.avatar) return null
+    if (user.avatar.startsWith('http')) return user.avatar
+    return supabase.storage.from('avatars').getPublicUrl(user.avatar).data.publicUrl
   }
 
   const formatTime = (dateString: string) => {
@@ -214,7 +196,7 @@ function MessagesContent() {
     return `${Math.floor(diff / 86400)}d ago`
   }
 
-  if (! user) return null
+  if (!user) return null
 
   return (
     <div className="min-h-screen bg-[#0f0f0f]">
@@ -242,7 +224,7 @@ function MessagesContent() {
                     key={conv.id}
                     onClick={() => openConversation(conv)}
                     className={`w-full p-4 flex items-center gap-3 hover:bg-[#252525] transition border-b border-gray-800 ${
-                      selectedUser?. id === conv.id ?  'bg-[#252525]' : ''
+                      selectedUser?.id === conv.id ? 'bg-[#252525]' : ''
                     }`}
                   >
                     <div className="w-12 h-12 bg-[#2a2a2a] rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
@@ -270,14 +252,14 @@ function MessagesContent() {
 
           {/* Messages */}
           <div className="col-span-8 bg-[#1a1a1a] border border-gray-800 rounded overflow-hidden flex flex-col">
-            {selectedUser ?  (
+            {selectedUser ? (
               <>
                 <div className="bg-[#5865f2] px-4 py-3 flex items-center gap-3">
                   <div className="w-10 h-10 bg-[#2a2a2a] rounded-full flex items-center justify-center overflow-hidden">
                     {getAvatarUrl(selectedUser) ? (
                       <img src={getAvatarUrl(selectedUser)!} alt={selectedUser.username} className="w-full h-full object-cover" />
                     ) : (
-                      <span className="text-white font-semibold">{selectedUser. username.charAt(0).toUpperCase()}</span>
+                      <span className="text-white font-semibold">{selectedUser.username.charAt(0).toUpperCase()}</span>
                     )}
                   </div>
                   <h3 className="text-white font-semibold">{selectedUser.username}</h3>
@@ -293,8 +275,8 @@ function MessagesContent() {
                       const isMine = msg.sender_id === user.id
                       return (
                         <div key={msg.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
-                          <div className={`max-w-[70%] ${isMine ? 'bg-[#5865f2]' :  'bg-[#2a2a2a]'} px-4 py-2 rounded-lg`}>
-                            <p className="text-white text-sm break-words">{msg. content}</p>
+                          <div className={`max-w-[70%] ${isMine ? 'bg-[#5865f2]' : 'bg-[#2a2a2a]'} px-4 py-2 rounded-lg`}>
+                            <p className="text-white text-sm break-words">{msg.content}</p>
                             <div className="flex items-center gap-2 mt-1">
                               <p className="text-xs text-gray-300">{formatTime(msg.created_at)}</p>
                               {isMine && (
@@ -318,7 +300,7 @@ function MessagesContent() {
                       onChange={(e) => setNewMessage(e.target.value)}
                       placeholder="Type a message..."
                       maxLength={500}
-                      className="flex-1 bg-[#2a2a2a] border-0 text-white px-4 py-2 rounded focus: outline-none focus:ring-1 focus:ring-[#5865f2]"
+                      className="flex-1 bg-[#2a2a2a] border-0 text-white px-4 py-2 rounded focus:outline-none focus:ring-1 focus:ring-[#5865f2]"
                     />
                     <button
                       type="submit"

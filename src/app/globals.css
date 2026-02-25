@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-retro-border;
+  }
+  
+  body {
+    @apply bg-retro-bg text-retro-text font-mono antialiased;
+  }
+}
+
+@layer components {
+  .retro-container {
+    @apply max-w-7xl mx-auto px-4 py-6;
+  }
+
+  .retro-card {
+    @apply bg-retro-card border-2 border-retro-border p-4 shadow-lg;
+  }
+
+  .retro-button {
+    @apply bg-retro-text text-retro-bg px-4 py-2 font-bold uppercase 
+           hover:bg-retro-highlight hover:text-retro-bg transition-all duration-200
+           border-2 border-retro-text cursor-pointer disabled:opacity-50 
+           disabled:cursor-not-allowed active:scale-95;
+  }
+
+  .retro-button-secondary {
+    @apply bg-retro-bg text-retro-text px-4 py-2 font-bold uppercase 
+           hover:bg-retro-text hover:text-retro-bg transition-all duration-200
+           border-2 border-retro-text cursor-pointer;
+  }
+
+  .retro-input {
+    @apply bg-retro-bg border-2 border-retro-border text-retro-text 
+           px-3 py-2 focus:border-retro-text outline-none w-full
+           placeholder:text-retro-border;
+  }
+
+  .retro-link {
+    @apply text-retro-link hover:text-retro-highlight hover:underline 
+           cursor-pointer transition-colors;
+  }
+
+  .retro-title {
+    @apply text-2xl font-bold text-retro-highlight mb-4 uppercase tracking-wider;
+  }
+
+  .retro-badge {
+    @apply inline-block px-2 py-1 text-xs font-bold bg-retro-text 
+           text-retro-bg uppercase;
+  }
+
+  .level-badge {
+    @apply inline-flex items-center px-2 py-1 text-xs font-bold 
+           bg-gradient-to-r from-retro-text to-retro-highlight 
+           text-retro-bg uppercase;
+  }
+}

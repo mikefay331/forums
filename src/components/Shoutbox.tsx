@@ -86,7 +86,7 @@ export default function Shoutbox() {
         .from('shoutbox')
         .select(`
           *,
-          user:users (id, username, level, avatar)
+          user:users!user_id(id, username, level, avatar)
         `)
         .order('created_at', { ascending: false })
         .limit(20)

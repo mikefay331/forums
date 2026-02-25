@@ -107,7 +107,8 @@ export default function ProfilePage() {
 
   const getAvatarUrl = (user: any) => {
     if (!user || !user.avatar) return null
-    return user.avatar
+    if (user.avatar.startsWith('http')) return user.avatar
+    return supabase.storage.from('avatars').getPublicUrl(user.avatar).data.publicUrl
   }
 
   const formatDate = (dateString: string) => {

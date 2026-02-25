@@ -44,9 +44,19 @@ export default function Navbar() {
           <div className="flex items-center gap-4">
             {user ? (
               <>
-                <Link href="/profile" className="flex items-center gap-2 text-gray-300 hover:text-white">
-                  <div className="w-8 h-8 bg-[#5865f2] rounded-full flex items-center justify-center text-white font-semibold text-sm">
-                    {user.username.charAt(0).toUpperCase()}
+                <Link href={`/profile/${user.username}`} className="flex items-center gap-2 text-gray-300 hover:text-white">
+                  <div className="w-8 h-8 bg-[#5865f2] rounded-full flex items-center justify-center overflow-hidden flex-shrink-0">
+                    {user.avatar ? (
+                      <img
+                        src={user.avatar.startsWith('http') ? user.avatar : supabase.storage.from('avatars').getPublicUrl(user.avatar).data.publicUrl}
+                        alt={user.username}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-white font-semibold text-sm">
+                        {user.username.charAt(0).toUpperCase()}
+                      </span>
+                    )}
                   </div>
                   <span className="font-medium">{user.username}</span>
                   <span className="text-xs bg-[#5865f2] px-2 py-0.5 rounded">LVL {user.level || 1}</span>

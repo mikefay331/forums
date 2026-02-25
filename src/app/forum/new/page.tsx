@@ -47,7 +47,7 @@ export default function NewThreadPage() {
   const isAdmin = user && (ADMIN_USERNAMES.includes(user.username) || user.role === 'admin')
 
   useEffect(() => {
-    if (! user) {
+    if (!user) {
       router.push('/login')
     }
   }, [user, router])
@@ -65,11 +65,11 @@ export default function NewThreadPage() {
     setLoading(true)
     try {
       // Create thread
-      const { data: thread, error:  threadError } = await supabase
+      const { data: thread, error: threadError } = await supabase
         .from('threads')
         .insert({
           title: formData.title,
-          content: formData. content,
+          content: formData.content,
           category: formData.category,
           author_id: user.id,
           views: 0,
@@ -88,7 +88,7 @@ export default function NewThreadPage() {
       const { data: updated, error: updateError } = await supabase
         .from('users')
         .update({
-          posts:  (user.posts || 0) + 1,
+          posts: (user.posts || 0) + 1,
           experience: newXP,
           level: newLevel,
         })
@@ -103,9 +103,9 @@ export default function NewThreadPage() {
       
       alert(`Thread created! +${XP_REWARDS.NEW_THREAD} XP`)
       router.push(`/forum/thread/${thread.id}`)
-    } catch (error:  any) {
+    } catch (error: any) {
       console.error('Error creating thread:', error)
-      alert('Failed to create thread:  ' + error.message)
+      alert('Failed to create thread: ' + error.message)
     } finally {
       setLoading(false)
     }
@@ -118,7 +118,7 @@ export default function NewThreadPage() {
       {/* Header */}
       <div className="bg-[#1a1a1a] border-b border-gray-800 py-4">
         <div className="max-w-4xl mx-auto px-4">
-          <Link href="/forum" className="text-[#5865f2] hover: underline text-sm mb-2 block">
+          <Link href="/forum" className="text-[#5865f2] hover:underline text-sm mb-2 block">
             ← Back to Forum
           </Link>
           <h1 className="text-2xl font-bold text-white">Create New Thread</h1>
@@ -138,9 +138,9 @@ export default function NewThreadPage() {
                 Category
               </label>
               <select
-                className="w-full bg-[#2a2a2a] border border-gray-700 text-white px-4 py-3 rounded focus: outline-none focus:border-[#5865f2] focus: ring-1 focus:ring-[#5865f2]"
-                value={formData. category}
-                onChange={(e) => setFormData({ ... formData, category: e.target.value })}
+                className="w-full bg-[#2a2a2a] border border-gray-700 text-white px-4 py-3 rounded focus:outline-none focus:border-[#5865f2] focus:ring-1 focus:ring-[#5865f2]"
+                value={formData.category}
+                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                 required
               >
                 {CATEGORIES.map((cat) => {
@@ -171,14 +171,14 @@ export default function NewThreadPage() {
               <input
                 type="text"
                 className="w-full bg-[#2a2a2a] border border-gray-700 text-white px-4 py-3 rounded focus:outline-none focus:border-[#5865f2] focus:ring-1 focus:ring-[#5865f2]"
-                value={formData. title}
+                value={formData.title}
                 onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                 placeholder="Enter thread title..."
                 required
                 maxLength={200}
               />
               <p className="text-gray-500 text-xs mt-1">
-                {formData. title.length}/200 characters
+                {formData.title.length}/200 characters
               </p>
             </div>
 
@@ -188,7 +188,7 @@ export default function NewThreadPage() {
                 Content
               </label>
               <textarea
-                className="w-full bg-[#2a2a2a] border border-gray-700 text-white px-4 py-3 rounded focus:outline-none focus: border-[#5865f2] focus:ring-1 focus:ring-[#5865f2] font-mono"
+                className="w-full bg-[#2a2a2a] border border-gray-700 text-white px-4 py-3 rounded focus:outline-none focus:border-[#5865f2] focus:ring-1 focus:ring-[#5865f2] font-mono"
                 value={formData.content}
                 onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                 placeholder="Write your thread content..."
@@ -205,15 +205,15 @@ export default function NewThreadPage() {
               <button
                 type="submit"
                 disabled={loading || ((formData.category === 'Announcements' || formData.category === 'Giveaways') && !isAdmin)}
-                className="flex-1 bg-[#5865f2] hover: bg-[#4752c4] disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-6 py-3 rounded font-semibold transition"
+                className="flex-1 bg-[#5865f2] hover:bg-[#4752c4] disabled:bg-gray-600 disabled:cursor-not-allowed text-white px-6 py-3 rounded font-semibold transition"
               >
-                {loading ?  'Creating Thread...' : `Create Thread (+${XP_REWARDS.NEW_THREAD} XP)`}
+                {loading ? 'Creating Thread...' : `Create Thread (+${XP_REWARDS.NEW_THREAD} XP)`}
               </button>
               <button
                 type="button"
                 onClick={() => router.back()}
                 disabled={loading}
-                className="flex-1 bg-[#2a2a2a] hover: bg-[#3a3a3a] disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded font-semibold transition border border-gray-700"
+                className="flex-1 bg-[#2a2a2a] hover:bg-[#3a3a3a] disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded font-semibold transition border border-gray-700"
               >
                 Cancel
               </button>

@@ -14,6 +14,7 @@ export default function Navbar() {
     await supabase.auth.signOut()
     setUser(null)
     router.push('/')
+    router.refresh()
   }
 
   return (

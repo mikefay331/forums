@@ -3,15 +3,13 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase'
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/lib/store';
 import toast from 'react-hot-toast';
 import Link from 'next/link';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { setUser } = useAuthStore();
   const [formData, setFormData] = useState({
-    email:  '',
+    email: '',
     password: '',
   });
   const [loading, setLoading] = useState(false);
@@ -21,49 +19,16 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      // Sign in with Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,
       });
 
-      if (authError) throw authError;
+      if (error) throw error;
 
-      // Fetch user profile from users table
-      const { data: userData, error: userError } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', authData.user.id)
-        .single();
-
-      if (userError) {
-        // If user doesn't exist in users table, create profile (fallback)
-        const { data: newUser, error: createError } = await supabase
-          .from('users')
-          .insert({
-            id: authData.user?.id,
-            email: formData.email,
-            username: formData.email.split('@')[0], // Default username from email
-            experience: 0,
-            posts: 0,
-            level: 1,
-            total_rewards: 0,
-            role: 'user',
-            is_verified: false,
-          })
-          .select()
-          .single();
-
-        if (createError) throw createError;
-        setUser(newUser);
-      } else {
-        setUser(userData);
-      }
-
-      toast.success('Logged in successfully! ');
+      toast.success('Logged in successfully!');
       router.push('/');
     } catch (error: any) {
-      console.error('Login error:', error);
       toast.error(error.message || 'Invalid email or password');
     } finally {
       setLoading(false);

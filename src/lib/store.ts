@@ -8,14 +8,14 @@ export interface User {
   username: string;
   email: string;
   wallet_address: string | null;
-  avatar:  string | null;
-  bio:  string | null;
+  avatar: string | null;
+  bio: string | null;
   total_rewards: number;
   role: string;
   is_verified: boolean;
-  experience: number;  // ✅ Added
-  posts: number;       // ✅ Added
-  level: number;       // ✅ Added
+  experience: number;
+  posts: number;
+  level: number;
 }
 
 interface AuthState {

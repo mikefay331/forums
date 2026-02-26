@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL! ;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 export async function POST(request: NextRequest) {
   try {
-    // Create admin client inline to ensure env vars are loaded
     const supabase = createClient(supabaseUrl, supabaseServiceKey, {
       auth: {
         autoRefreshToken: false,
@@ -17,12 +16,13 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { email, password, username, wallet_address } = body;
 
-    console.log('📝 Registration attempt:', { email, username });
-    console.log('🔑 Has service key:', !!supabaseServiceKey);
-
     // Validate
     if (!email || !password || !username) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    if (password.length < 6) {
+      return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400 });
     }
 
     // Check username
@@ -53,8 +53,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No user created' }, { status: 500 });
     }
 
-    console.log('✅ Auth user:', authData.user.id);
-
     // Create profile
     const { data: userData, error: userError } = await supabase
       .from('users')
@@ -81,12 +79,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: userError.message }, { status: 500 });
     }
 
-    console.log('✅ Profile created');
-
     return NextResponse.json({ success: true, user: userData });
 
   } catch (error: any) {
-    console.error('💥 Error:', error);
+    console.error('Registration error:', error);
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

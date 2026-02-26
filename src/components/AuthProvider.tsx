@@ -8,29 +8,27 @@ export default function AuthProvider({ children }: { children: React.ReactNode }
   const { setUser, setLoading } = useAuthStore();
 
   useEffect(() => {
-    const initSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        const { data: profile } = await supabase.from('users').select('*').eq('id', session.user.id).single();
-        setUser(profile as any);
-      } else {
-        setUser(null);
-      }
-      setLoading(false);
-    };
-    initSession();
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session?.user) {
-        const { data: profile } = await supabase
+      if (
+        (event === 'INITIAL_SESSION' || event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') &&
+        session?.user
+      ) {
+        const { data: profile, error } = await supabase
           .from('users')
           .select('*')
           .eq('id', session.user.id)
           .single();
-        setUser(profile as any);
+
+        if (error) {
+          console.error('Failed to fetch user profile. The profile may not exist for this account:', error);
+          setUser(null);
+        } else {
+          setUser(profile as any);
+        }
       } else {
         setUser(null);
       }
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();

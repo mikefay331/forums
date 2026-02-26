@@ -3,13 +3,11 @@
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
-import { useAuthStore } from '@/lib/store';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import Link from 'next/link';
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { setUser } = useAuthStore();
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -20,7 +18,7 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (formData.password !== formData.passwordConfirm) {
       toast.error('Passwords do not match');
       return;
@@ -31,76 +29,49 @@ export default function RegisterPage() {
       return;
     }
 
+    if (formData.password.length < 6) {
+      toast.error('Password must be at least 6 characters');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // Check if username is taken
-      const { data: existing } = await supabase
-        .from('users')
-        .select('username')
-        .eq('username', formData.username.toLowerCase())
-        .maybeSingle();
-
-      if (existing) {
-        toast.error('Username already taken');
-        setLoading(false);
-        return;
-      }
-
-      // Just sign up - the trigger will create the profile automatically! 
-      const { data, error } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            username: formData.username.toLowerCase()
-          }
-        }
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+          username: formData.username,
+        }),
       });
 
-      if (error) throw error;
-      if (!data.user) throw new Error('No user created');
+      const data = await res.json();
 
-      // Wait a moment for trigger to complete
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Update the username in the profile (in case trigger used email prefix)
-      await supabase
-        .from('users')
-        .update({ username: formData.username.toLowerCase() })
-        .eq('id', data.user.id);
-
-      // Fetch the created profile
-      const { data: userData } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', data.user.id)
-        .single();
-
-      if (userData) {
-        setUser(userData);
+      if (!res.ok) {
+        throw new Error(data.error || 'Registration failed');
       }
 
-      toast.success('Account created!  🎉');
+      // Establish client session — AuthProvider will handle setting the user
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (signInError) throw signInError;
+
+      toast.success('Account created! 🎉');
       router.push('/');
-      
     } catch (error: any) {
-      console.error('Error:', error);
-      
-      if (error.message?.includes('User already registered')) {
-        toast.error('Email already registered');
-      } else {
-        toast.error(error.message || 'Registration failed');
-      }
+      toast.error(error.message || 'Registration failed. Please try again or contact support.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <>
-      <Toaster />
-      <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#0f0f0f] flex items-center justify-center p-4">
         <div className="max-w-md w-full bg-[#1a1a1a] border border-gray-800 rounded-lg overflow-hidden">
           <div className="bg-[#5865f2] px-6 py-4">
             <h1 className="text-2xl font-bold text-white">Create Account</h1>
@@ -183,8 +154,7 @@ export default function RegisterPage() {
               Already have an account? Login
             </Link>
           </div>
-        </div>
       </div>
-    </>
+    </div>
   );
 }

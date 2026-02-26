@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!  
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!  
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
 if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables')
@@ -9,21 +9,6 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 // Client-side Supabase client
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
-
-// For server-side operations with service role
-// FIX: Ensure this only runs on the server to avoid client-side key errors
-export const supabaseAdmin = typeof window === 'undefined' 
-  ? createClient(
-      supabaseUrl,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!,
-      {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false
-        }
-      }
-    )
-  : null as any
 
 export type Database = {
   public: {
@@ -36,16 +21,16 @@ export type Database = {
           username: string
           email: string
           wallet_address: string | null
-          avatar:  string | null
+          avatar: string | null
           bio: string | null
           total_rewards: number
           role: string
           is_verified: boolean
-          experience:  number
+          experience: number
           posts: number
           level: number
         }
-        Insert:  Omit<Database['public']['Tables']['users']['Row'], 'id' | 'created_at' | 'updated_at'>
+        Insert: Omit<Database['public']['Tables']['users']['Row'], 'id' | 'created_at' | 'updated_at'>
         Update: Partial<Database['public']['Tables']['users']['Insert']>
       }
       threads: {
@@ -64,11 +49,11 @@ export type Database = {
         Insert: Omit<Database['public']['Tables']['threads']['Row'], 'id' | 'created_at' | 'updated_at'>
         Update: Partial<Database['public']['Tables']['threads']['Insert']>
       }
-      posts:  {
+      posts: {
         Row: {
           id: string
           created_at: string
-          updated_at:  string
+          updated_at: string
           content: string
           thread_id: string
           author_id: string
@@ -104,14 +89,14 @@ export type Database = {
           id: string
           created_at: string
           user_id: string
-          amount:  number
+          amount: number
           type: string
           status: string
           signature: string | null
           description: string | null
         }
         Insert: Omit<Database['public']['Tables']['transactions']['Row'], 'id' | 'created_at'>
-        Update:  Partial<Database['public']['Tables']['transactions']['Insert']>
+        Update: Partial<Database['public']['Tables']['transactions']['Insert']>
       }
     }
   }

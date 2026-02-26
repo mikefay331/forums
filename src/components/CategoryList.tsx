@@ -6,18 +6,18 @@ import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 
 const CATEGORIES = [
-  { name: 'Announcements', icon: '📢', description: 'Discuss announcements' },
-  { name: 'Bitcoin Discussion', icon: '₿', description: 'Discuss bitcoin discussion' },
-  { name: 'Altcoin Discussion', icon: '🪙', description: 'Discuss altcoin discussion' },
-  { name: 'Trading & Speculation', icon: '📈', description: 'Discuss trading & speculation' },
-  { name: 'Mining', icon: '⛏️', description: 'Discuss mining' },
-  { name: 'Technical Support', icon: '🔧', description: 'Discuss technical support' },
-  { name: 'Development & Technical', icon: '💻', description: 'Discuss development & technical' },
-  { name: 'Economy', icon: '💰', description: 'Discuss economy' },
-  { name: 'Marketplace', icon: '🛒', description: 'Discuss marketplace' },
-  { name: 'Off-Topic', icon: '💬', description: 'Discuss off-topic' },
-  { name: '$FORUMS Community', icon: '🎯', description: 'Discuss $forums community' },
-  { name: 'Giveaways', icon: '🎁', description: 'Discuss giveaways' },
+  { name: 'Announcements', icon: '📢', description: 'Official news and updates from the $FORUMS team' },
+  { name: 'Bitcoin Discussion', icon: '₿', description: 'Everything Bitcoin — price, technology, and adoption' },
+  { name: 'Altcoin Discussion', icon: '🪙', description: 'Talk altcoins, new projects, and hidden gems' },
+  { name: 'Trading & Speculation', icon: '📈', description: 'TA, market calls, strategies, and price speculation' },
+  { name: 'Mining', icon: '⛏️', description: 'Mining hardware, software, pools, and profitability' },
+  { name: 'Technical Support', icon: '🔧', description: 'Get help with wallets, exchanges, and crypto tools' },
+  { name: 'Development & Technical', icon: '💻', description: 'Blockchain dev, smart contracts, and open source builds' },
+  { name: 'Economy', icon: '💰', description: 'Macro economics, regulation, and global crypto adoption' },
+  { name: 'Marketplace', icon: '🛒', description: 'Buy, sell, and trade crypto goods and services' },
+  { name: 'Off-Topic', icon: '💬', description: 'Anything goes — non-crypto talk and general discussion' },
+  { name: '$FORUMS Community', icon: '🎯', description: 'Community suggestions, feedback, and $FORUMS token talk' },
+  { name: 'Giveaways', icon: '🎁', description: 'Token giveaways, contests, and community rewards' },
 ]
 
 export default function CategoryList() {
